@@ -1,0 +1,39 @@
+#!/bin/sh
+# Munin Plugin to display the number of pages in the
+# google index for all of the given websites
+# Ben Dowling - www.coderholic.com
+
+# Change this to whatever sites you're interested in
+websites="www.coderholic.com www.plasis.co.uk jobs.plasis.co.uk"
+
+if [ "$1" = "autoconf" ]; then
+        echo yes 
+        exit 0
+fi
+
+if [ "$1" = "config" ]; then
+
+        echo 'graph_title Number of Pages in Google Index'
+        echo 'graph_args --base 1000 -l 0 '
+        echo 'graph_vlabel number of pages'
+        echo 'graph_category popularity'
+        echo 'graph_info This graph shows the number of pages in the Google index for a given website.'
+
+        for site in $websites
+        do
+                # Convert non-alpha characters for munin compatability
+				name=$(echo $site | sed 's/[^a-zA-Z]/_/g')
+                echo "${name}.label ${site}"
+                echo "${name}.draw LINE2"
+                echo "${name}.info The number of pages in the google index."
+        done
+        exit 0
+fi
+
+for site in $websites 
+do
+		# Convert non-alpha characters for munin compatability
+		name=$(echo $site | sed 's/[^a-zA-Z]/_/g')
+		value=$(wget -q --user-agent=Firefox -O - "http://www.google.com/search?q=site:${site}" | grep -E "of about <b>[0-9,]+</b>" -o | grep -E "[0-9,]+" -o | sed "s/,//g")
+        echo "${name}.value ${value}"
+done

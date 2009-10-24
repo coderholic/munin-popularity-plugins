@@ -1,0 +1,40 @@
+#!/bin/sh
+# Munin Plugin to display the technorati
+# blog authority value for given sites
+# Ben Dowling - www.coderholic.com
+
+# Change this to whatever sites you're interested in
+websites="www.coderholic.com"
+
+if [ "$1" = "autoconf" ]; then
+        echo yes
+        exit 0
+fi
+
+if [ "$1" = "config" ]; then
+
+        echo 'graph_title Technorati Authority'
+        echo 'graph_args --base 1000 -l 0'
+        echo 'graph_vlabel authority'
+        echo 'graph_category popularity'
+        echo 'graph_info This graph shows Technorati Authority.'
+
+        for site in $websites
+        do
+                # Convert non-alpha characters for munin compatability
+				name=$(echo $site | sed 's/[^a-zA-Z]/_/g')
+                echo "${name}.label ${site}"
+                echo "${name}.draw LINE2"
+                echo "${name}.info The authority."
+        done
+        exit 0
+fi
+
+i=0
+for site in $websites
+do
+		# Convert non-alpha characters for munin compatability
+		name=$(echo $site | sed 's/[^a-zA-Z]/_/g')
+		value=$(wget -q --user-agent=Firefox -O - "http://technorati.com/blogs/${site}" | grep "Technorati Authority" -A1 | grep -E "[0-9]+" -o)
+        echo "${name}.value ${value}"
+done

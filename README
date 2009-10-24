@@ -1,0 +1,14 @@
+Munin Popularity Plugins
+========================
+
+A collection of Munin plugins to track website popularity. Plugins include:
+
+ - Alexa traffic rank
+ - Yahoo Backlinks
+ - Number of pages in Google's index
+ - Feedburner subscribers
+ - Technorati authority
+
+ Each plugin supports tracking of multiple websites. Munin will check the values every 5 minutes and plot daily, weekly, monthly and yearly graphs. 
+
+ For more details about Munin see http://munin.projects.linpro.no/

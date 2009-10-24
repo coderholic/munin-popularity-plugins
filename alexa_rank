@@ -1,0 +1,41 @@
+#!/bin/sh
+# Munin Plugin to display the Alexa traffic
+# rank for all of the given websites. Values are treated
+# as negatives so that 1 is that top
+# Ben Dowling - www.coderholic.com
+
+# Change this to whatever sites you're interested in
+websites="www.coderholic.com www.plasis.co.uk jobs.plasis.co.uk"
+
+if [ "$1" = "autoconf" ]; then
+        echo yes
+        exit 0
+fi
+
+if [ "$1" = "config" ]; then
+
+        echo 'graph_title Alexa Rank'
+        echo 'graph_args --base 1000 -l -1 '
+        echo 'graph_vlabel number of pages'
+        echo 'graph_category popularity'
+        echo 'graph_info This graph shows Alexa rank of given websites.'
+
+        for site in $websites
+        do
+                # Convert non-alpha characters for munin compatability
+				name=$(echo $site | sed 's/[^a-zA-Z]/_/g')
+                echo "${name}.label ${site}"
+                echo "${name}.draw LINE2"
+                echo "${name}.info The number of pages in the google index."
+        done
+        exit 0
+fi
+
+i=0
+for site in $websites
+do
+		# Convert non-alpha characters for munin compatability
+		name=$(echo $site | sed 's/[^a-zA-Z]/_/g')
+		value=$(wget -q --user-agent=Firefox -O - "http://www.alexa.com/siteinfo/${site}" | grep "Alexa Traffic Rank" -B1 | grep -E "[0-9,]+<" -o | sed 's/<//g' | sed 's/,//g')
+        echo "${name}.value -${value}"
+done

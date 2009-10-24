@@ -1,0 +1,40 @@
+#!/bin/sh
+# Munin Plugin to display the number of backlinks to a site,
+# using Yahoo SiteExplorer to get the value
+# Ben Dowling - www.coderholic.com
+
+# Change this to whatever sites you're interested in
+websites="www.coderholic.com jobs.plasis.co.uk www.plasis.co.uk"
+
+if [ "$1" = "autoconf" ]; then
+        echo yes
+        exit 0
+fi
+
+if [ "$1" = "config" ]; then
+
+        echo 'graph_title Yahoo Backlinks'
+        echo 'graph_args --base 1000 -l 0'
+        echo 'graph_vlabel links'
+        echo 'graph_category popularity'
+        echo 'graph_info This graph shows the number of backlinks to a site.'
+
+        for site in $websites
+        do
+                # Convert non-alpha characters for munin compatability
+				name=$(echo $site | sed 's/[^a-zA-Z]/_/g')
+                echo "${name}.label ${site}"
+                echo "${name}.draw LINE2"
+                echo "${name}.info backlinks."
+        done
+        exit 0
+fi
+
+i=0
+for site in $websites
+do
+		# Convert non-alpha characters for munin compatability
+		name=$(echo $site | sed 's/[^a-zA-Z]/_/g')
+		value=$(wget -q --user-agent=Firefox -O - "http://siteexplorer.search.yahoo.com/uk/search?p=${site}&bwm=i&bwmo=&bwmf=s" | grep -E "Inlinks \([0-9,]+\)" -o | grep -E "[0-9,]+" -o | sed 's/,//g')
+        echo "${name}.value ${value}"
+done
