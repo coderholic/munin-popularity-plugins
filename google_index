@@ -34,6 +34,6 @@ for site in $websites
 do
 		# Convert non-alpha characters for munin compatability
 		name=$(echo $site | sed 's/[^a-zA-Z]/_/g')
-		value=$(wget -q --user-agent=Firefox -O - "http://www.google.com/search?q=site:${site}" | grep -E "of about <b>[0-9,]+</b>" -o | grep -E "[0-9,]+" -o | sed "s/,//g")
+		value=$(curl -s --user-agent "www.google.com" "http://www.google.com/search?q=site:${site}" | grep -E "About [0-9,]+" -o | grep -E "[0-9,]+" -o | sed "s/,//g")
         echo "${name}.value ${value}"
 done
